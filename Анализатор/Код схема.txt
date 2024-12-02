@@ -1,0 +1,7 @@
+int [id_name](){
+	int [id_name], [id_name];
+	double [id_name], [id_name];
+	[id_name] = [int_num];
+	[id_name] = ([int_num] - [int_num]) + dtoi([double_num]) + [id_name];
+	return [id_name];
+}

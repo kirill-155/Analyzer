@@ -1,0 +1,10 @@
+int funcion(){
+	int a = 1, const = 10;
+	double b = 2.5;
+	int c = dtoi(b - const) + a + const;
+	return c;
+}
+inta
+int2
+a4
+# $ @

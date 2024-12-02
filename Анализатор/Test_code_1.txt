@@ -1,0 +1,7 @@
+int fff(){
+	int a, c;
+	b = 2.5 + (1 - c);
+	a = 2;
+	c = dtoi(b) + a;
+	return c;
+}
