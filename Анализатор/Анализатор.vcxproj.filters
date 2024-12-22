@@ -36,9 +36,6 @@
     <ClCompile Include="Node.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="Semantic_analyzer.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Hash_table.h">
@@ -65,9 +62,6 @@
     <ClInclude Include="Node.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="Semantic_analyzer.h">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Код схема.txt">
@@ -82,7 +76,7 @@
     <Text Include="Test_code_1.txt">
       <Filter>Файлы ресурсов</Filter>
     </Text>
-    <Text Include="Hash_table.txt">
+    <Text Include="output.txt">
       <Filter>Файлы ресурсов</Filter>
     </Text>
     <Text Include="Test_code_2.txt">

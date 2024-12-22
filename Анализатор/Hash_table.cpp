@@ -1,6 +1,6 @@
 #include "Hash_table.h"
 
-// Переопределяем размер хеш-таблицы
+// Создаем хеш-таблицу
 void Hash_table::resize(size_t new_size) {
 	this->info = new list_token[new_size];
 	this->size = new_size;
@@ -99,28 +99,28 @@ void Hash_table::insert(string& type_new_lexeme, string& new_lexeme) {
 	}
 }
 
-string add_spaces(string str, int n = 10) {
-	string S = "";
-	int i = 0;
-	for (; i < str.size(); i++)
-		S += str[i];
-	for (; i < n; i++)
-		S += ' ';
-	return S;
-}
-
 // Вывод таблицы в файл
 void Hash_table::output(string path) {
 	ofstream fout(path);
 	if(fout.is_open())
 		for (int i = 0; i < size; i++) {
-			if (info[i].size > 0) {
-				for (int j = 0; j < info[i].size; j++) {
+			if (this->info[i].size > 0) {
+				if (this->info[i].size == 1) {
 					fout <<
-						info[i][j].index << "\t" <<
-						add_spaces(info[i][j].type_lexeme) << "\t" <<
-						add_spaces(info[i][j].lexeme) << "\t" <<
-						info[i][j].hash << '\n';
+						this->info[i][0].index << "\t" <<
+						this->info[i][0].type_lexeme << "\t" <<
+						this->info[i][0].lexeme << "\t" <<
+						this->info[i][0].hash << '\n';
+				}
+				else {
+					for (int j = 0; j < this->info[i].size; j++) {
+						fout <<
+							this->info[i][j].index << "\t" <<
+							this->info[i][j].type_lexeme << "\t" <<
+							this->info[i][j].lexeme << "\t" <<
+							this->info[i][j].hash << '\n';
+					}
+					fout << "\n ";
 				}
 			}
 		}
