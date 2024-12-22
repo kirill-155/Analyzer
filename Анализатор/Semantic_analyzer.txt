@@ -1,0 +1,10 @@
+int fff functionBegin
+int a c b 4 DECL
+double d f g 4 DECL
+double y u 3 DECL
+double i 2 DECL
+b dtoi 2.5 CALL 1 b - + = 
+a 2 = 
+d 1.0 = 
+g itod b CALL f + = 
+return a functionEnd

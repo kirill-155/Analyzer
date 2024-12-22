@@ -16,19 +16,33 @@ void Hash_table::clear(Hash_table& table) {
 }
 
 //Поиск в таблице
-token Hash_table::find(my_type hash) {
-	my_type index = hash % this->size;
-	
+token Hash_table::find(string lexeme) {
+	my_type new_hash = hash(lexeme);
+	my_type index = new_hash % this->size;
+
 	for (int i = 0; i < this->info[index].size; i++) {
-		if (hash == this->info[index][i].hash) {
+		if (new_hash == this->info[index][i].hash) {
 			return this->info[index][i];
 		}
 	}
-	//return;
+	return token();
+}
+
+//Поиск в таблице
+bool Hash_table::isfind(string lexeme) {
+	my_type new_hash = hash(lexeme);
+	my_type index = new_hash % this->size;
+
+	for (int i = 0; i < this->info[index].size; i++) {
+		if (new_hash == this->info[index][i].hash) {
+			return true;
+		}
+	}
+	return false;
 }
 
 // Нужно проверить find_table на возвращаемое значение
-bool Hash_table::find_in_list(my_type index, my_type new_hash) {
+bool Hash_table::find_table(my_type index, my_type new_hash) {
 	for (int i = 0; i < this->info[index].size; i++) {
 		if (new_hash == this->info[index][i].hash) {
 			return true;
@@ -60,10 +74,10 @@ my_type Hash_table::hash(string lexeme) {
 }
 
 // Вставка в твблицу
-void Hash_table::insert(string& type_new_lexeme, string& new_lexeme) {
+void Hash_table::insert(string& type_new_lexeme, string& new_lexeme, string& type) {
 	my_type new_hash = hash(new_lexeme);
 	my_type new_index = new_hash % this->size;
-	token new_token(type_new_lexeme, new_lexeme, new_index, new_hash);
+	token new_token(type_new_lexeme, new_lexeme, new_index, new_hash, type);
 
 	// Если таблица полная
 	if (this->count_elems == this->size) {
@@ -71,31 +85,17 @@ void Hash_table::insert(string& type_new_lexeme, string& new_lexeme) {
 		new_token.~token();
 		return;
 	}
-	// Если в списке ноль элементов;
-	if (this->info[new_index].size == 0) {
-		// Добавляем новый элемент
-		token* new_list = new token[info[new_index].size + 1];
-		for (int i = 0; i < info[new_index].size; i++)
+	// Если в таблице нет этой лексемы
+	if (find_table(new_index, new_hash) == false) {// Добавление
+		token* new_list = new token[info[new_index].size + 1];// Увеличение размера на 1
+		for (int i = 0; i < info[new_index].size; i++)// Копирование всех значений в новый массив
 			new_list[i] = info[new_index][i];
-		delete[] info[new_index].info;
-		info[new_index].info = new_list;
-		info[new_index][info[new_index].size] = new_token;
-		info[new_index].size++;
+		delete[] info[new_index].info;// Очищение старого массива
+		new_list[info[new_index].size] = new_token;// Присваивание нового токена в конец массива
+		info[new_index].info = new_list;// Присваивание нового массива
+		info[new_index].size++;// Увеличение размера
 
 		this->count_elems++;
-	}
-	else {
-		if (find_in_list(new_index, new_hash) == false) {
-			token* new_list = new token[info[new_index].size + 1];
-			for (int i = 0; i < info[new_index].size; i++)
-				new_list[i] = info[new_index][i];
-			delete[] info[new_index].info;
-			info[new_index].info = new_list;
-			info[new_index][info[new_index].size] = new_token;
-			info[new_index].size++;
-
-			this->count_elems++;
-		}
 	}
 }
 
@@ -133,4 +133,5 @@ Hash_table::~Hash_table() {
 		delete[] info[i].info;
 	}
 	delete[] info;
+	size = 0;
 }

@@ -4,16 +4,14 @@ using namespace std;
 typedef unsigned long long my_type;
 
 struct token {
-	string type_lexeme;
-	string lexeme;
+	string type_lexeme, lexeme, type = "";
 
-	my_type index;
-	my_type hash;
-	int size_lexeme;
+	my_type index = 0, hash = 0;
+	int size_lexeme = 0;
 
-	token() {};
-	token(string new_type, string new_lexeme, my_type new_index, my_type new_hash)
-		: type_lexeme(new_type), lexeme(new_lexeme), index(new_index), hash(new_hash) {}
+	token() = default;
+	token(string& new_type, string& new_lexeme, my_type& new_index, my_type& new_hash, string& type)
+		: type_lexeme(new_type), lexeme(new_lexeme), index(new_index), hash(new_hash), type(type), size_lexeme(lexeme.size()) {}
 
 	~token() {
 		lexeme.clear();

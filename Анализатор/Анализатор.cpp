@@ -11,7 +11,9 @@ int main()
 	Lexical_analyzer analiz;
 	Node root("Function");
 	analiz.analyze("Test_code_1.txt", root);
-	root.print(0);
+	root.print();
+	int it = 0;
+	cout << "\n\n" << root.postfix(it);
 }
 
 /*

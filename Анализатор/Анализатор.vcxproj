@@ -132,7 +132,6 @@
     <ClCompile Include="Lexical_analyzer.cpp" />
     <ClCompile Include="nfa.cpp" />
     <ClCompile Include="Node.cpp" />
-    <ClCompile Include="Semantic_analyzer.cpp" />
     <ClCompile Include="Syntactic_analysis.cpp" />
     <ClCompile Include="Анализатор.cpp" />
   </ItemGroup>
@@ -143,7 +142,6 @@
     <ClInclude Include="Lexical_analyzer.h" />
     <ClInclude Include="nfa.h" />
     <ClInclude Include="Node.h" />
-    <ClInclude Include="Semantic_analyzer.h" />
     <ClInclude Include="Syntactic_analysis.h" />
     <ClInclude Include="token.h" />
   </ItemGroup>
@@ -151,6 +149,7 @@
     <Text Include="dfa.txt" />
     <Text Include="error.txt" />
     <Text Include="Hash_table.txt" />
+    <Text Include="Semantic_analyzer.txt" />
     <Text Include="Test_code_1.txt" />
     <Text Include="Test_code_2.txt" />
     <Text Include="Код схема.txt" />

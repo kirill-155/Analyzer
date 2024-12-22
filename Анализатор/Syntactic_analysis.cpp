@@ -1,6 +1,8 @@
 #include "Syntactic_analysis.h"
 
 void Syntactic_analysis::error(string str) {
+	if (str.size() > 0)
+		str += '\n';
 	system("chcp 1251 > nul");
 	ofstream out("error.txt");
 	out << "ќшибка в строке " << line << "\n" << str;
@@ -9,7 +11,19 @@ void Syntactic_analysis::error(string str) {
 	exit(0);
 }
 
-Syntactic_analysis::Syntactic_analysis() {
+void Syntactic_analysis::error(set<int>& err) {
+	string str;
+	system("chcp 1251 > nul");
+	ofstream out("error.txt");
+	for (int er : err) {
+		out << "ќшибка типа данных в строке " << er << "\n";
+		cout << "ќшибка типа данных в строке " << er << "\n";
+	}
+	out.close();
+	exit(0);
+}
+
+Syntactic_analysis::Syntactic_analysis(Hash_table& table) : table(table) {
 	ofstream out("error.txt");
 	out << "";
 	out.close();
@@ -99,6 +113,7 @@ void Syntactic_analysis::End(Node& n)
 		n[0].flag = 1;
 	}
 	else if (n[1].flag == 0 && n[0].flag == 1) {
+		if (!table.isfind(lexeme)) error("»дентификатор \"" + lexeme + "\" не определен");
 		Id(n[1]);
 	}
 	else if (n[2].flag == 0 && lexeme == ";" && n[1].flag == 1) {
@@ -242,6 +257,7 @@ void Syntactic_analysis::VarList(Node& n)
 		n.anons = 1;
 	}
 	if (n[0].flag == 0) {
+		if (table.isfind(lexeme)) error("ѕеременна€ \"" + lexeme + "\" уже была объ€влена");
 		Id(n[0]);
 	}
 	else if (n[1].flag == 0) {
@@ -270,6 +286,7 @@ void Syntactic_analysis::VarList1(Node& n)
 			n[0].flag = 1;
 		}
 		else if (n[0].flag == 1 && n[1].flag == 0) {
+			if (table.isfind(lexeme)) error("ѕеременна€ \"" + lexeme + "\" уже была объ€влена");
 			Id(n[1]);
 		}
 		else if (n[2].flag == 0 && n[1].flag == 1) {
@@ -284,12 +301,8 @@ void Syntactic_analysis::VarList1(Node& n)
 
 void Syntactic_analysis::Type(Node& n)
 {
-	if (type_lexeme == "int") {
-		n.addSon(lexeme);
-		n.flag = 1;
-	}
-	else if (type_lexeme == "double") {
-		n.addSon(lexeme);
+	if (type_lexeme == "int" || type_lexeme == "double") {
+		n.addSon(lexeme, type_lexeme);
 		n.flag = 1;
 	}
 	else error("ќжидалс€ тип данных вместо " + type_lexeme);
@@ -305,6 +318,7 @@ void Syntactic_analysis::Op(Node& n)
 		n.anons = 1;
 	}
 	if (n[0].flag == 0) {
+		if (!table.isfind(lexeme)) error("»дентификатор \"" + lexeme + "\" не определен");
 		Id(n[0]);
 	}
 	else if (n[1].flag == 0 && lexeme == "=") {
@@ -407,6 +421,7 @@ void Syntactic_analysis::SimpleExpr(Node& n)
 		}
 	}
 	else if (n[0].data == "Id") {
+		if (!table.isfind(lexeme)) error("»дентификатор \"" + lexeme + "\" не определен");
 		Id(n[0]);
 		if (n[0].flag == 1) {
 			n.flag = 1;
@@ -474,7 +489,8 @@ void Syntactic_analysis::Expr1(Node& n)
 void Syntactic_analysis::Id(Node& n)
 {
 	if (type_lexeme == "id_name") {
-		n.addSon(lexeme);
+		token t = table.find(lexeme);
+		n.addSon(lexeme, t.type, line);
 		n.flag = 1;
 	}
 	else error("ќжидалось им€ переменной вместо " + type_lexeme);
@@ -482,12 +498,9 @@ void Syntactic_analysis::Id(Node& n)
 
 void Syntactic_analysis::Const(Node& n)
 {
-	if (type_lexeme == "int_num") {
-		n.addSon(lexeme);
-		n.flag = 1;
-	}
-	else if (type_lexeme == "double_num") {
-		n.addSon(lexeme);
+	if (type_lexeme == "int_num" || type_lexeme == "double_num") {
+		string type = type_lexeme == "int_num" ? "int" : "double";
+		n.addSon(lexeme, type, line);
 		n.flag = 1;
 	}
 	else error("ќжидалось число вместо " + type_lexeme);

@@ -52,11 +52,15 @@ string Lexical_analyzer::next_lexeme(ifstream& file) {
 //добавляем в хэш таблицу;
 void Lexical_analyzer::insert(Hash_table& table, int state, int st, string type_lexeme, string& lexeme, Node& root, Syntactic_analysis& synt) {
 	if (state == st) {
-		table.insert(type_lexeme, lexeme);
 		if (state != -1) {
 			synt.parse(root, type_lexeme, line, lexeme);
 		}
 		else synt.error("Лексема " + lexeme + " не определена");
+		if (type_lexeme == "int" || type_lexeme == "double")
+			type = lexeme;
+		if (lexeme == ";")
+			type = "";
+		table.insert(type_lexeme, lexeme, type);
 	}
 }
 
@@ -69,7 +73,7 @@ void Lexical_analyzer::analyze(string path_input_file, Node& root) {
 	Hash_table table;
 	table.resize(1000);
 
-	Syntactic_analysis synt;
+	Syntactic_analysis synt(table);
 
 	string word;
 	int state;
@@ -114,5 +118,13 @@ void Lexical_analyzer::analyze(string path_input_file, Node& root) {
 	file.close();
 	
 	synt.parse(root, "", line, "#End");
+	set<int> err;
+	root.iserror(err);
+	if (err.size() != 0)
+		synt.error(err);
 	table.output("Hash_table.txt");
+	ofstream fout("Semantic_analyzer.txt");
+	int it = 0;
+	fout << root.postfix(it);
+	fout.close();
 }

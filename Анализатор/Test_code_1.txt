@@ -1,7 +1,11 @@
 int fff(){
-	int a, c;
-	b = 2.5 + (1 - (b));
+	int a, c, b;
+	double d, f, g;
+	double y, u;
+	double i;
+	b = dtoi(2.5) + (1 - (b));
 	a = 2;
-	c = dtoi(b) + a;
-	return c;
+	d = 1.0;
+	g = itod(b) + f;
+	return a;
 }

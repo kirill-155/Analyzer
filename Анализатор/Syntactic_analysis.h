@@ -1,5 +1,6 @@
 #pragma once
 #include "Node.h"
+#include "Hash_table.h"
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -8,9 +9,9 @@ using namespace std;
 class Syntactic_analysis
 {
 private:
-	string input, type_lexeme;
+	string lexeme, type_lexeme;
 	int line = 0;
-	string lexeme;
+	Hash_table& table;
 	void Function(Node& n);
 	void Begin(Node& n);
 	void End(Node& n);
@@ -31,6 +32,7 @@ private:
 	void Const(Node& n);
 public:
 	void error(string str = "");
-	Syntactic_analysis();
+	void error(set<int>& err);
+	Syntactic_analysis(Hash_table& table);
 	void parse(Node& root, string type_lexeme, int line, string lexeme);
 };

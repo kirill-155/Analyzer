@@ -8,7 +8,7 @@ class Lexical_analyzer
 {
 private:
 	int line = 1;
-
+	string type = "";
 public:
 	Lexical_analyzer() {}
 
