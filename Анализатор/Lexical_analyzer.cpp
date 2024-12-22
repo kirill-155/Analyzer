@@ -49,46 +49,14 @@ string Lexical_analyzer::next_lexeme(ifstream& file) {
 	return word;
 }
 
-int Lexical_analyzer::get_last_state_from_path(string& path) {
-	int i = path.size() - 1;
-	while (path[i] == ' ') {
-		i--;
-	}
-
-	string str_for_state = "";
-	while (path[i] != ' ') {
-		str_for_state += path[i];
-
-		i--;
-	}
-
-	reverse(str_for_state.begin(), str_for_state.end());
-
-	return stoi(str_for_state);
-}
-
 //äîáàâëÿåì â õıø òàáëèöó;
-void Lexical_analyzer::insert(Hash_table& table, int state, int st, string type_lexeme, string lexeme, Node& root, Syntactic_analysis& synt) {
+void Lexical_analyzer::insert(Hash_table& table, int state, int st, string type_lexeme, string& lexeme, Node& root, Syntactic_analysis& synt) {
 	if (state == st) {
 		table.insert(type_lexeme, lexeme);
 		if (state != -1) {
-			if (type_lexeme == "int     ")
-				synt.parse(root, "int", line, lexeme);
-			else if (type_lexeme == "double  ")
-				synt.parse(root, "double", line, lexeme);
-			else if (type_lexeme == "return  ")
-				synt.parse(root, "return", line, lexeme);
-			else if (type_lexeme == "operator  ")
-				synt.parse(root, lexeme, line, lexeme);
-			else if (type_lexeme == "delimiter ")
-				synt.parse(root, lexeme, line, lexeme);
-			else if (type_lexeme == "int_num   ")
-				synt.parse(root, "int_num", line, lexeme);
-			else if (type_lexeme == "double_num")
-				synt.parse(root, "double_num", line, lexeme);
-			else if (type_lexeme == "id_name   ")
-				synt.parse(root, "id_name", line, lexeme);
+			synt.parse(root, type_lexeme, line, lexeme);
 		}
+		else synt.error("Ëåêñåìà " + lexeme + " íå îïğåäåëåíà");
 	}
 }
 
@@ -116,35 +84,35 @@ void Lexical_analyzer::analyze(string path_input_file, Node& root) {
 			if (my.isAccept(word, state)) {
 
 				// Êëş÷åâûå ñëîâà (int, double, return)
-				insert(table, state, 16, "int     ", word, root, synt);
-				insert(table, state, 25, "double  ", word, root, synt);
-				insert(table, state, 26, "return  ", word, root, synt);
+				insert(table, state, 16, "int", word, root, synt);
+				insert(table, state, 25, "double", word, root, synt);
+				insert(table, state, 26, "return", word, root, synt);
 
-				// Îïåğàòîğû (+, -, =, itod, dtoi)
-				insert(table, state, 7, "operator  ", word, root, synt);
-				insert(table, state, 21, "operator  ", word, root, synt);
+				// Îïåğàòîğû (=, +, -, itod, dtoi)
+				insert(table, state, 7, "operator", word, root, synt);
+				insert(table, state, 21, "operator", word, root, synt);
 
 				// Ğàçäåëèòåëè ({, }, (, ), ;, ,,)
-				insert(table, state, 6, "delimiter ", word, root, synt);
+				insert(table, state, 6, "delimiter", word, root, synt);
 
 				// constant
-				insert(table, state, 5, "int_num   ", word, root, synt);
+				insert(table, state, 5, "int_num", word, root, synt);
 				insert(table, state, 19, "double_num", word, root, synt);
 
 				// Íàçâàíèÿ
 				if (state >= 1 && state <= 4 || state >= 8 && state <= 12 || state == 14 || state == 15 ||
 					state == 17 || state == 18 || state == 20 || state >= 22 && state <= 24)
-					insert(table, state, state, "id_name   ", word, root, synt);
+					insert(table, state, state, "id_name", word, root, synt);
 			}
 			else {
 				//âûäàåì ñîîáùåíèå îá îøèáêå ñ ôàéëîì ñ îøèáêàìè;
-				insert(table, -1, -1, "Error     ", word, root, synt);
+				insert(table, -1, -1, "Error", word, root, synt);
 				//fout << word << "\n";
 			}
 		}
 	}
-	synt.parse(root, "double_num", line, "#End");
 	file.close();
-	table.output("output.txt");
 	
+	synt.parse(root, "", line, "#End");
+	table.output("Hash_table.txt");
 }
