@@ -8,11 +8,9 @@ using namespace std;
 class Syntactic_analysis
 {
 private:
-	string input, lexeme;
-	int i;
-	void error(string str);
-	int line;
-	string param;
+	string input, type_lexeme;
+	int line = 0;
+	string lexeme;
 	void Function(Node& n);
 	void Begin(Node& n);
 	void End(Node& n);
@@ -32,6 +30,7 @@ private:
 	void Id(Node& n);
 	void Const(Node& n);
 public:
+	void error(string str = "");
 	Syntactic_analysis();
-	void parse(Node& root, string lex, int line, string str);
+	void parse(Node& root, string type_lexeme, int line, string lexeme);
 };

@@ -12,12 +12,12 @@ private:
 	my_type count_elems = 0;
 
 	my_type hash(string lexeme);
+	bool find_in_list(my_type index, my_type new_hash);
 public:
-	Hash_table() {}
+	Hash_table() = default;
 	void resize(size_t size);
 	void clear(Hash_table& table);
 	token find(my_type hash);
-	bool find_in_list(my_type index, my_type new_hash);
 	void insert(string& type_new_lexeme, string& new_lexeme);
 	void output(string path);
 	~Hash_table();

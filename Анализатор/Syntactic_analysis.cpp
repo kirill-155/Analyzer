@@ -1,29 +1,33 @@
 #include "Syntactic_analysis.h"
 
-void Syntactic_analysis::error(string str = "") {
+void Syntactic_analysis::error(string str) {
+	system("chcp 1251 > nul");
 	ofstream out("error.txt");
-	out << "ќшибка в строке " << line;
+	out << "ќшибка в строке " << line << "\n" << str;
+	cout << "ќшибка в строке " << line << "\n" << str;
 	out.close();
 	exit(0);
 }
 
 Syntactic_analysis::Syntactic_analysis() {
+	ofstream out("error.txt");
+	out << "";
+	out.close();
 }
 
-void Syntactic_analysis::parse(Node& root, string lex, int line, string str)
+void Syntactic_analysis::parse(Node& root, string type_lexeme, int line, string lexeme)
 {
-	param = str;
+	this->lexeme = lexeme;
 	this->line = line;
-	lexeme = lex;
-	if (root.flage == 0) {
+	this->type_lexeme = type_lexeme;
+	if (root.flag == 0) {
 		Function(root);
 	}
-	else if (str != "#End") error();
+	else if (lexeme != "#End") error();
 }
 
 void Syntactic_analysis::Function(Node& n)
 {
-	bool f = 1;
 	if (n.anons == 0) {
 		n.addSon("Begin");
 		n.addSon("Descriptions");
@@ -31,26 +35,26 @@ void Syntactic_analysis::Function(Node& n)
 		n.addSon("End");
 		n.anons = 1;
 	}
-	if (n[0].flage == 0) {
+	if (n[0].flag == 0) {
 		Begin(n[0]);
-		f = 0;
 	}
-	else if (n[1].flage == 0) {
+	else if (n[1].flag == 0) {
 		Descriptions(n[1]);
-		f = 0;
+		if (n[1].flag == 1 && type_lexeme == "id_name")
+			Operators(n[2]);
 	}
-	if (n[2].flage == 0 && n[1].flage == 1) {
+	else if (n[2].flag == 0 && n[1].flag == 1) {
 		Operators(n[2]);
-		f = 0;
+		if(n[2].flag == 1 && type_lexeme == "return")
+			End(n[3]);
 	}
-	if (n[3].flage == 0 && n[2].flage == 1) {
+	else if (n[3].flag == 0 && n[2].flag == 1) {
 		End(n[3]);
-		if (n[3].flage == 1) {
-			n.flage = 1;
+		if (n[3].flag == 1) {
+			n.flag = 1;
 		}
-		f = 0;
 	}
-	if(f) error();
+	else error();
 }
 
 void Syntactic_analysis::Begin(Node& n)
@@ -63,21 +67,21 @@ void Syntactic_analysis::Begin(Node& n)
 		n.addSon("{");
 		n.anons = 1;
 	}
-	if (n[0].flage == 0) {
+	if (n[0].flag == 0) {
 		Type(n[0]);
 	}
-	else if (n[1].flage == 0) {
+	else if (n[1].flag == 0) {
 		FunctionName(n[1]);
 	}
-	else if (n[2].flage == 0 && lexeme == "(") {
-		n[2].flage = 1;
+	else if (n[2].flag == 0 && lexeme == "(") {
+		n[2].flag = 1;
 	}
-	else if (n[3].flage == 0 && lexeme == ")" && n[2].flage == 1) {
-		n[3].flage = 1;
+	else if (n[3].flag == 0 && lexeme == ")" && n[2].flag == 1) {
+		n[3].flag = 1;
 	}
-	else if (n[4].flage == 0 && lexeme == "{" && n[3].flage == 1) {
-		n[4].flage = 1;
-		n.flage = 1;
+	else if (n[4].flag == 0 && lexeme == "{" && n[3].flag == 1) {
+		n[4].flag = 1;
+		n.flag = 1;
 	}
 	else error();
 }
@@ -91,18 +95,18 @@ void Syntactic_analysis::End(Node& n)
 		n.addSon("}");
 		n.anons = 1;
 	}
-	if (n[0].flage == 0 && lexeme == "return") {
-		n[0].flage = 1;
+	if (n[0].flag == 0 && type_lexeme == "return") {
+		n[0].flag = 1;
 	}
-	else if (n[1].flage == 0 && n[0].flage == 1) {
+	else if (n[1].flag == 0 && n[0].flag == 1) {
 		Id(n[1]);
 	}
-	else if (n[2].flage == 0 && lexeme == ";" && n[1].flage == 1) {
-		n[2].flage = 1;
+	else if (n[2].flag == 0 && lexeme == ";" && n[1].flag == 1) {
+		n[2].flag = 1;
 	}
-	else if (n[3].flage == 0 && lexeme == "}" && n[2].flage == 1) {
-		n[3].flage = 1;
-		n.flage = 1;
+	else if (n[3].flag == 0 && lexeme == "}" && n[2].flag == 1) {
+		n[3].flag = 1;
+		n.flag = 1;
 	}
 	else error();
 }
@@ -113,10 +117,10 @@ void Syntactic_analysis::FunctionName(Node& n)
 		n.addSon("Id");
 		n.anons = 1;
 	}
-	if (n[0].flage == 0) {
+	if (n[0].flag == 0) {
 		Id(n[0]);
-		if (n[0].flage == 1) {
-			n.flage = 1;
+		if (n[0].flag == 1) {
+			n.flag = 1;
 		}
 	}
 	else error();
@@ -129,13 +133,13 @@ void Syntactic_analysis::Descriptions(Node& n)
 		n.addSon("Descriptions1");
 		n.anons = 1;
 	}
-	if (n[0].flage == 0) {
+	if (n[0].flag == 0) {
 		 Descr(n[0]);
 	}
-	else if (n[1].flage == 0) {
+	else if (n[1].flag == 0) {
 		Descriptions1(n[1]);
-		if (n[1].flage == 1) {
-			n.flage = 1;
+		if (n[1].flag == 1) {
+			n.flag = 1;
 		}
 	}
 	else error();
@@ -143,8 +147,8 @@ void Syntactic_analysis::Descriptions(Node& n)
 
 void Syntactic_analysis::Descriptions1(Node& n)
 {
-	if (n.anons == 0 && lexeme == "id_name") {
-		n.flage = 1;
+	if (n.anons == 0 && type_lexeme == "id_name") {
+		n.flag = 1;
 		n.addSon("eps");
 	}
 	else {
@@ -153,13 +157,13 @@ void Syntactic_analysis::Descriptions1(Node& n)
 			n.addSon("Descriptions1");
 			n.anons = 1;
 		}
-		if (n[0].flage == 0) {
+		if (n[0].flag == 0) {
 			Descr(n[0]);
 		}
-		else if (n[1].flage == 0) {
+		else if (n[1].flag == 0) {
 			Descriptions1(n[1]);
-			if (n[1].flage == 1) {
-				n.flage = 1;
+			if (n[1].flag == 1) {
+				n.flag = 1;
 			}
 		}
 		else error();
@@ -173,13 +177,13 @@ void Syntactic_analysis::Operators(Node& n)
 		n.addSon("Operators1");
 		n.anons = 1;
 	}
-	if (n[0].flage == 0) {
+	if (n[0].flag == 0) {
 		Op(n[0]);
 	}
-	else if (n[1].flage == 0) {
+	else if (n[1].flag == 0) {
 		Operators1(n[1]);
-		if (n[1].flage == 1) {
-			n.flage = 1;
+		if (n[1].flag == 1) {
+			n.flag = 1;
 		}
 	}
 	else error();
@@ -187,8 +191,8 @@ void Syntactic_analysis::Operators(Node& n)
 
 void Syntactic_analysis::Operators1(Node& n)
 {
-	if (n.anons == 0 && lexeme == "return") {
-		n.flage = 1;
+	if (n.anons == 0 && type_lexeme == "return") {
+		n.flag = 1;
 		n.addSon("eps");
 	}
 	else {
@@ -197,13 +201,13 @@ void Syntactic_analysis::Operators1(Node& n)
 			n.addSon("Operators1");
 			n.anons = 1;
 		}
-		if (n[0].flage == 0) {
+		if (n[0].flag == 0) {
 			Op(n[0]);
 		}
-		else if (n[1].flage == 0) {
+		else if (n[1].flag == 0) {
 			Operators1(n[1]);
-			if (n[1].flage == 1) {
-				n.flage = 1;
+			if (n[1].flag == 1) {
+				n.flag = 1;
 			}
 		}
 		else error();
@@ -218,13 +222,13 @@ void Syntactic_analysis::Descr(Node& n)
 		n.addSon(";");
 		n.anons = 1;
 	}
-	if (n[0].flage == 0) {
+	if (n[0].flag == 0) {
 		Type(n[0]);
 	}
-	else if (n[1].flage == 0) {
+	else if (n[1].flag == 0) {
 		VarList(n[1]);
-		if (n[1].flage == 1) {
-			n.flage = 1;
+		if (n[1].flag == 1) {
+			n.flag = 1;
 		}
 	}
 	else error();
@@ -237,13 +241,13 @@ void Syntactic_analysis::VarList(Node& n)
 		n.addSon("VarList1");
 		n.anons = 1;
 	}
-	if (n[0].flage == 0) {
+	if (n[0].flag == 0) {
 		Id(n[0]);
 	}
-	else if (n[1].flage == 0) {
+	else if (n[1].flag == 0) {
 		VarList1(n[1]);
-		if (n[1].flage == 1) {
-			n.flage = 1;
+		if (n[1].flag == 1) {
+			n.flag = 1;
 		}
 	}
 	else error();
@@ -253,7 +257,7 @@ void Syntactic_analysis::VarList1(Node& n)
 {
 	if (n.anons == 0 && lexeme == ";") {
 		n.addSon("eps");
-		n.flage = 1;
+		n.flag = 1;
 	}
 	else {
 		if (n.anons == 0) {
@@ -262,16 +266,16 @@ void Syntactic_analysis::VarList1(Node& n)
 			n.addSon("VarList1");
 			n.anons = 1;
 		}
-		if (n[0].flage == 0 && lexeme == ",") {
-			n[0].flage = 1;
+		if (n[0].flag == 0 && lexeme == ",") {
+			n[0].flag = 1;
 		}
-		else if (n[0].flage == 1 && n[1].flage == 0) {
+		else if (n[0].flag == 1 && n[1].flag == 0) {
 			Id(n[1]);
 		}
-		else if (n[2].flage == 0 && n[1].flage == 1) {
+		else if (n[2].flag == 0 && n[1].flag == 1) {
 			VarList1(n[2]);
-			if (n[2].flage == 1) {
-				n.flage = 1;
+			if (n[2].flag == 1) {
+				n.flag = 1;
 			}
 		}
 		else error();
@@ -280,15 +284,15 @@ void Syntactic_analysis::VarList1(Node& n)
 
 void Syntactic_analysis::Type(Node& n)
 {
-	if (lexeme == "int") {
-		n.addSon("int");
-		n.flage = 1;
+	if (type_lexeme == "int") {
+		n.addSon(lexeme);
+		n.flag = 1;
 	}
-	else if (lexeme == "double") {
-		n.addSon("double");
-		n.flage = 1;
+	else if (type_lexeme == "double") {
+		n.addSon(lexeme);
+		n.flag = 1;
 	}
-	else error("ќжидалс€ тип данных вместо " + lexeme);
+	else error("ќжидалс€ тип данных вместо " + type_lexeme);
 }
 
 void Syntactic_analysis::Op(Node& n)
@@ -300,16 +304,16 @@ void Syntactic_analysis::Op(Node& n)
 		n.addSon(";");
 		n.anons = 1;
 	}
-	if (n[0].flage == 0) {
+	if (n[0].flag == 0) {
 		Id(n[0]);
 	}
-	else if (n[1].flage == 0 && lexeme == "=") {
-		n[1].flage = 1;
+	else if (n[1].flag == 0 && lexeme == "=") {
+		n[1].flag = 1;
 	}
-	else if (n[2].flage == 0 && n[1].flage == 1) {
+	else if (n[2].flag == 0 && n[1].flag == 1) {
 		Expr(n[2]);
-		if (n[2].flage == 1) {
-			n.flage = 1;
+		if (n[2].flag == 1) {
+			n.flag = 1;
 		}
 	}
 	else error();
@@ -338,74 +342,74 @@ void Syntactic_analysis::SimpleExpr(Node& n)
 			n.addSon(")");
 			n.anons = 1;
 		}
-		else if (lexeme == "int_num" || lexeme == "double_num") {
+		else if (type_lexeme == "int_num" || type_lexeme == "double_num") {
 			n.addSon("Const");
 			n.anons = 1;
 		}
-		else if (lexeme == "id_name") {
+		else if (type_lexeme == "id_name") {
 			n.addSon("Id");
 			n.anons = 1;
 		}
 		else error();
 	}
 	if (n[0].data == "itod") {
-		if (n[0].flage == 0 && lexeme == "itod") {
-			n[0].flage = 1;
+		if (n[0].flag == 0 && lexeme == "itod") {
+			n[0].flag = 1;
 		}
-		else if (n[1].flage == 0 && lexeme == "(" && n[0].flage == 1) {
-			n[1].flage = 1;
+		else if (n[1].flag == 0 && lexeme == "(" && n[0].flag == 1) {
+			n[1].flag = 1;
 		}
-		else if (n[2].flage == 0 && (lexeme == "+" || lexeme == "-" || lexeme == "itod" || lexeme == "dtoi" || lexeme == "(" || lexeme == "int_num" || lexeme == "double_num" || lexeme == "id_name") && n[1].flage == 1) {
+		else if (n[2].flag == 0 && ((type_lexeme == "operator" && lexeme != "=") || lexeme == "(" || lexeme == ")" ||
+			type_lexeme == "int_num" || type_lexeme == "double_num" || type_lexeme == "id_name") && n[1].flag == 1) {
 			Expr(n[2]);
-		}
-		else if (n[3].flage == 0 && lexeme == ")") {
-			Expr(n[2]);
-			n[3].flage = 1;
-			n.flage = 1;
+			if (n[2].flag == 1) {
+				n[3].flag = 1;
+				n.flag = 1;
+			}
 		}
 		else error();
 	}
 	else if (n[0].data == "dtoi") {
-		if (n[0].flage == 0 && lexeme == "dtoi") {
-			n[0].flage = 1;
+		if (n[0].flag == 0 && lexeme == "dtoi") {
+			n[0].flag = 1;
 		}
-		else if (n[1].flage == 0 && lexeme == "(" && n[0].flage == 1) {
-			n[1].flage = 1;
+		else if (n[1].flag == 0 && lexeme == "(" && n[0].flag == 1) {
+			n[1].flag = 1;
 		}
-		else if (n[2].flage == 0 && (lexeme == "+" || lexeme == "-" || lexeme == "itod" || lexeme == "dtoi" || lexeme == "(" || lexeme == "int_num" || lexeme == "double_num" || lexeme == "id_name") && n[1].flage == 1) {
+		else if (n[2].flag == 0 && ((type_lexeme == "operator" && lexeme != "=") || lexeme == "(" || lexeme == ")" ||
+			type_lexeme == "int_num" || type_lexeme == "double_num" || type_lexeme == "id_name") && n[1].flag == 1) {
 			Expr(n[2]);
-		}
-		else if (n[3].flage == 0 && lexeme == ")") {
-			Expr(n[2]); 
-			n[3].flage = 1;
-			n.flage = 1;
+			if (n[2].flag == 1) {
+				n[3].flag = 1;
+				n.flag = 1;
+			}
 		}
 		else error();
 	}
 	else if (n[0].data == "(") {
-		if (n[0].flage == 0 && lexeme == "(") {
-			n[0].flage = 1;
+		if (n[0].flag == 0 && lexeme == "(") {
+			n[0].flag = 1;
 		}
-		else if (n[1].flage == 0 && (lexeme == "+" || lexeme == "-" || lexeme == "itod" || lexeme == "dtoi" || lexeme == "(" || lexeme == "int_num" || lexeme == "double_num" || lexeme == "id_name") && n[0].flage == 1) {
+		else if (n[1].flag == 0 && ((type_lexeme == "operator" && lexeme != "=") || lexeme == "(" || lexeme == ")" ||
+			type_lexeme == "int_num" || type_lexeme == "double_num" || type_lexeme == "id_name") && n[0].flag == 1) {
 			Expr(n[1]);
-		}
-		else if (n[2].flage == 0 && lexeme == ")") {
-			Expr(n[1]);
-			n[2].flage = 1;
-			n.flage = 1;
+			if(n[1].flag == 1){
+				n[2].flag = 1;
+				n.flag = 1;
+			}
 		}
 		else error();
 	}
 	else if (n[0].data == "Const") {
 		Const(n[0]);
-		if (n[0].flage == 1) {
-			n.flage = 1;
+		if (n[0].flag == 1) {
+			n.flag = 1;
 		}
 	}
 	else if (n[0].data == "Id") {
 		Id(n[0]);
-		if (n[0].flage == 1) {
-			n.flage = 1;
+		if (n[0].flag == 1) {
+			n.flag = 1;
 		}
 	}
 	else error();
@@ -418,13 +422,13 @@ void Syntactic_analysis::Expr(Node& n)
 		n.addSon("Expr1");
 		n.anons = 1;
 	}
-	if (n[0].flage == 0) {
+	if (n[0].flag == 0) {
 		SimpleExpr(n[0]);
 	}
-	else if (n[1].flage == 0) {
+	else if (n[1].flag == 0) {
 		Expr1(n[1]);
-		if (n[1].flage == 1) {
-			n.flage = 1;
+		if (n[1].flag == 1) {
+			n.flag = 1;
 		}
 	}
 	else error();
@@ -432,12 +436,10 @@ void Syntactic_analysis::Expr(Node& n)
 
 void Syntactic_analysis::Expr1(Node& n)
 {
-	if (lexeme == "return")
-		error();
 	if (n.anons == 0 && (lexeme == ")" || lexeme == ";")) {
 		n.addSon("eps");
 		n.anons = 1;
-		n.flage = 1;
+		n.flag = 1;
 	}
 	else {
 		if (n.anons == 0) {
@@ -451,19 +453,18 @@ void Syntactic_analysis::Expr1(Node& n)
 				n.addSon("SimpleExpr");
 				n.addSon("Expr1");
 			}
-			else
-				n.anons = 1;
+			n.anons = 1;
 		}
-		if (n.size > 0 && n[0].flage == 0) {
-			n[0].flage = 1;
+		if (n.size == 3 && n[0].flag == 0) {
+			n[0].flag = 1;
 		}
-		else if (n.size > 0 && n[1].flage == 0 && n[0].flage == 1) {
+		else if (n.size == 3 && n[1].flag == 0 && n[0].flag == 1) {
 			SimpleExpr(n[1]);
 		}
-		else if (n.size > 0 && n[2].flage == 0 && n[1].flage == 1) {
+		else if (n.size == 3 && n[2].flag == 0 && n[1].flag == 1) {
 			Expr1(n[2]);
-			if (n[2].flage == 1) {
-				n.flage = 1;
+			if (n[2].flag == 1) {
+				n.flag = 1;
 			}
 		}
 		else error();
@@ -472,22 +473,22 @@ void Syntactic_analysis::Expr1(Node& n)
 
 void Syntactic_analysis::Id(Node& n)
 {
-	if (lexeme == "id_name") {
-		n.addSon(param);
-		n.flage = 1;
+	if (type_lexeme == "id_name") {
+		n.addSon(lexeme);
+		n.flag = 1;
 	}
-	else error("ќжидалось им€ переменной вместо " + lexeme);
+	else error("ќжидалось им€ переменной вместо " + type_lexeme);
 }
 
 void Syntactic_analysis::Const(Node& n)
 {
-	if (lexeme == "int_num") {
-		n.addSon(param);
-		n.flage = 1;
+	if (type_lexeme == "int_num") {
+		n.addSon(lexeme);
+		n.flag = 1;
 	}
-	else if (lexeme == "double_num") {
-		n.addSon(param);
-		n.flage = 1;
+	else if (type_lexeme == "double_num") {
+		n.addSon(lexeme);
+		n.flag = 1;
 	}
-	else error("ќжидалось число вместо " + lexeme);
+	else error("ќжидалось число вместо " + type_lexeme);
 }

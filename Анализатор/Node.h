@@ -15,7 +15,7 @@ public:
 	string data;
 	int size = 0;
 	bool anons = 0;
-	bool flage = 0;
+	bool flag = 0;
 	Node(string s);
 	void addSon(string s);
 	Node& operator[](int i);
